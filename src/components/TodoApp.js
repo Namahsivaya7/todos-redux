@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import {
   Box,
   Button,
@@ -12,11 +13,17 @@ import {
   ListItemText,
   TextField,
   Typography,
-} from '@mui/material';
-import { addTodo, deleteTodo, editTodo, setIndexInEdit } from '../store/todosSlice';
+} from "@mui/material";
+import {
+  addTodo,
+  deleteTodo,
+  editTodo,
+  setIndexInEdit,
+  toggleComplete,
+} from "../store/todosSlice";
 
 const TodoApp = () => {
-  const [newTodoText, setNewTodoText] = useState('');
+  const [newTodoText, setNewTodoText] = useState("");
   const todos = useSelector((state) => state.todos.todos);
   const indexInEdit = useSelector((state) => state.todos.indexInEdit);
   const dispatch = useDispatch();
@@ -27,8 +34,8 @@ const TodoApp = () => {
 
   const handleAdd = () => {
     if (newTodoText.trim()) {
-      dispatch(addTodo(newTodoText));
-      setNewTodoText('');
+      dispatch(addTodo({ text: newTodoText, completed: false }));
+      setNewTodoText("");
     }
   };
 
@@ -44,13 +51,17 @@ const TodoApp = () => {
     dispatch(setIndexInEdit(todoIndex));
   };
 
+  const handleToggleComplete = (todoIndex) => {
+    dispatch(toggleComplete(todoIndex));
+  };
+
   return (
-    <Box m={16} ml={32} mr={32}>
-      <Typography variant="h2" style={{ textAlign: 'center', marginBottom: 16 }}>
+    <Box p={{ xs: 2, sm: 4, md: 8 }} m="auto" maxWidth="md">
+      <Typography variant="h2" style={{ textAlign: "center", marginBottom: 16 }}>
         My Todos
       </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={10}>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={12} sm={10}>
           <TextField
             fullWidth
             placeholder="ADD YOUR TODO"
@@ -58,26 +69,45 @@ const TodoApp = () => {
             onChange={handleChange}
           />
         </Grid>
-        <Grid item xs={2}>
-          <Button fullWidth variant="contained" style={{ height: 56 }} onClick={handleAdd}>
+        <Grid item xs={12} sm={2}>
+          <Button
+            fullWidth
+            variant="contained"
+            style={{ height: "100%" }}
+            onClick={handleAdd}
+          >
             Add
           </Button>
         </Grid>
       </Grid>
       <List>
         {todos.map((todo, i) => (
-          <ListItem divider key={todo + i}>
+          <ListItem
+            divider
+            key={todo.text + i}
+            alignItems="flex-start"
+            style={{
+              textDecoration: todo.completed ? "line-through" : "none",
+              color: todo.completed ? "gray" : "inherit",
+            }}
+          >
             {indexInEdit === i ? (
               <TextField
-                defaultValue={todo}
+                defaultValue={todo.text}
                 fullWidth
                 onBlur={(event) => {
                   handleEdit(i, event.target.value);
                 }}
               />
             ) : (
-              <ListItemText primary={todo} />
+              <ListItemText primary={todo.text} />
             )}
+            <IconButton
+              aria-label="mark as complete"
+              onClick={() => handleToggleComplete(i)}
+            >
+              <CheckCircleIcon color={todo.completed ? "success" : "disabled"} />
+            </IconButton>
             <IconButton aria-label="edit" onClick={() => handleEditClick(i)}>
               <EditIcon />
             </IconButton>

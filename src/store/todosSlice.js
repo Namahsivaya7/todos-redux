@@ -1,32 +1,35 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  todos: JSON.parse(localStorage.getItem('todos') || '[]'),
-  indexInEdit: -1,
+  todos: [],
+  indexInEdit: null,
 };
 
 const todosSlice = createSlice({
-  name: 'todos',
+  name: "todos",
   initialState,
   reducers: {
     addTodo: (state, action) => {
       state.todos.push(action.payload);
-      localStorage.setItem('todos', JSON.stringify(state.todos));
     },
     deleteTodo: (state, action) => {
       state.todos.splice(action.payload, 1);
-      localStorage.setItem('todos', JSON.stringify(state.todos));
     },
     editTodo: (state, action) => {
-      state.todos[action.payload.index] = action.payload.text;
-      state.indexInEdit = -1;
-      localStorage.setItem('todos', JSON.stringify(state.todos));
+      const { index, text } = action.payload;
+      state.todos[index].text = text;
     },
     setIndexInEdit: (state, action) => {
       state.indexInEdit = action.payload;
     },
+    toggleComplete: (state, action) => {
+      const index = action.payload;
+      state.todos[index].completed = !state.todos[index].completed;
+    },
   },
 });
 
-export const { addTodo, deleteTodo, editTodo, setIndexInEdit } = todosSlice.actions;
+export const { addTodo, deleteTodo, editTodo, setIndexInEdit, toggleComplete } =
+  todosSlice.actions;
+
 export default todosSlice.reducer;
